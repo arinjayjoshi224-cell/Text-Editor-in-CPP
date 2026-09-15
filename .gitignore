@@ -2,3 +2,5 @@
 API keys
 passwords
 database credentials 
+build/
+.qtcreator/
