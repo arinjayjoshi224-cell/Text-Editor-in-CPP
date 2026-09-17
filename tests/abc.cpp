@@ -152,7 +152,7 @@ public:
    
     void display()
     {
-        //system("cls");
+        system("cls");
 
         Node *temp = head;
 
