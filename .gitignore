@@ -4,4 +4,4 @@ passwords
 database credentials 
 build/
 .qtcreator/
-a.exe
+MainWindow/
