@@ -152,7 +152,7 @@ public:
    
     void display()
     {
-        system("cls");
+        //system("cls");
 
         Node *temp = head;
 
@@ -170,7 +170,7 @@ public:
         if (cursor == NULL)
             cout << "|";
 
-        cout << "\n\n";
+        cout << "\n\n\n";
 
     }
 
