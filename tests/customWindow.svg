@@ -1,0 +1,25 @@
+<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+
+<!---Background-->
+<rect width="600" height="400" fill="white"/>
+
+<!---Title-->
+<rect width="600" height="20" fill="green"/>
+<text x="300" y="15" font-size="20" text-anchor="middle" fill="white">Text Editor</text>
+
+<!---Control Buttons-->
+<rect x="580" y="0" width="20" height="20" fill="red"/>
+<rect x="560" y="0" width="20" height="20" fill="grey"/>
+<rect x="540" y="0" width="20" height="20" fill="grey"/>
+<text x="590" y="15" font-size="15" text-anchor="middle" fill="white">X</text>
+<text x="570" y="15" font-size="15" text-anchor="middle" fill="white">□</text>
+<text x="550" y="15" font-size="15" text-anchor="middle" fill="white">-</text>
+
+
+<!---Status Bar-->
+<rect y="390" width="600" height="10" fill="lightgray"/>
+<text x="3" y="397" font-size="7" fill="black">Demo application GUI</text>
+
+<!---Menu Bar-->
+<rect y="20" width="600" height="40" fill="lightgrey"/>
+</svg>
