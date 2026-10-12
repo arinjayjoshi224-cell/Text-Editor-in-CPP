@@ -4,9 +4,12 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+<<<<<<< HEAD
 #include <string>
 #include <climits>
 #include <cstring>
+=======
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
 
 using namespace std;
 
@@ -87,12 +90,15 @@ private:
     SkipNode* skipHead;
     int skipLevel;
 
+<<<<<<< HEAD
     // ---- selection / clipboard state ----
     bool hasSelection;      // true while a selection anchor is active
     int anchorLine;         // where the selection started
     int anchorCol;
     string clipboard;       // internal clipboard ('\n' separates lines)
 
+=======
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
     void clearSkipList()
     {
         if (skipHead == NULL)
@@ -289,6 +295,7 @@ public:
         skipHead = NULL;
         skipLevel = 1;
 
+<<<<<<< HEAD
         hasSelection = false;
         anchorLine = 0;
         anchorCol = 0;
@@ -570,6 +577,11 @@ public:
         }
     }
 
+=======
+        rebuildSkipList();
+    }
+
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
     void insert(char ch)
     {
         CharNode* newNode = new CharNode(ch);
@@ -880,10 +892,13 @@ public:
         if (nextLine == NULL)
             return;
 
+<<<<<<< HEAD
         // Cursor ends up at the join point: just before the first
         // character that came from the next line (NULL if none).
         CharNode* joinPoint = nextLine->head;
 
+=======
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
         if (currentLine->head == NULL)
         {
             currentLine->head =
@@ -919,7 +934,11 @@ public:
 
         delete nextLine;
 
+<<<<<<< HEAD
         cursor = joinPoint;
+=======
+        cursor = NULL;
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
 
         rebuildSkipList();
     }
@@ -1077,6 +1096,7 @@ public:
     {
         system("cls");
 
+<<<<<<< HEAD
         HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
         const WORD normalAttr =
@@ -1093,11 +1113,17 @@ public:
 
         int row = 0;
 
+=======
+        LineNode* line =
+            firstLine;
+
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
         while (line != NULL)
         {
             CharNode* temp =
                 line->head;
 
+<<<<<<< HEAD
             int col = 0;
 
             while (temp != NULL)
@@ -1136,6 +1162,20 @@ public:
 
         cout.flush();
 
+=======
+            while (temp != NULL)
+            {
+                cout << temp->data;
+
+                temp = temp->next;
+            }
+
+            cout << '\n';
+
+            line = line->next;
+        }
+
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
         int x = getCurrentColumn();
         int y = currentLineNumber;
 
@@ -1196,6 +1236,7 @@ public:
             if (!key.bKeyDown)
                 continue;
 
+<<<<<<< HEAD
             bool ctrl =
                 (key.dwControlKeyState &
                  (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
@@ -1287,6 +1328,62 @@ public:
             {
                 deleteSelection();      // typing replaces selection
                 insert(key.uChar.AsciiChar);
+=======
+            if (key.wVirtualKeyCode == VK_ESCAPE)
+            {
+                break;
+            }
+            else if (
+                key.wVirtualKeyCode == VK_LEFT
+            )
+            {
+                moveLeft();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_RIGHT
+            )
+            {
+                moveRight();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_UP
+            )
+            {
+                moveUp();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_DOWN
+            )
+            {
+                moveDown();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_BACK
+            )
+            {
+                backspace();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_DELETE
+            )
+            {
+                deleteChar();
+            }
+            else if (
+                key.wVirtualKeyCode == VK_RETURN
+            )
+            {
+                newLine();
+            }
+            else if (
+                key.uChar.AsciiChar >= 32 &&
+                key.uChar.AsciiChar <= 126
+            )
+            {
+                insert(
+                    key.uChar.AsciiChar
+                );
+>>>>>>> 172ff55179064c44227f3bd569002aec09c79924
             }
         }
     }
