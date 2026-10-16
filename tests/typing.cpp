@@ -7,6 +7,7 @@
 #include <string>
 #include <climits>
 #include <cstring>
+#include "FileHandler.h"
 
 using namespace std;
 
@@ -562,6 +563,96 @@ public:
     ~TextEditor()
     {
         clearClipList();
+    }
+
+    // Convert the editor's linked-list text into a string.
+    string getText()
+    {
+        string content;
+
+        LineNode* line = firstLine;
+
+        while (line != NULL)
+        {
+            CharNode* ch = line->head;
+
+            while (ch != NULL)
+            {
+                content += ch->data;
+                ch = ch->next;
+            }
+
+            if (line->next != NULL)
+                content += '\n';
+
+            line = line->next;
+        }
+
+        return content;
+    }
+
+    // Replace the editor's contents with loaded text.
+    void setText(const string& content)
+    {
+        // Delete all existing lines and characters.
+        LineNode* line = firstLine;
+
+        while (line != NULL)
+        {
+            CharNode* ch = line->head;
+
+            while (ch != NULL)
+            {
+                CharNode* nextChar = ch->next;
+                delete ch;
+                ch = nextChar;
+            }
+
+            LineNode* nextLine = line->next;
+            delete line;
+            line = nextLine;
+        }
+
+        // Start with one empty line.
+        firstLine = new LineNode();
+        lastLine = firstLine;
+        currentLine = firstLine;
+        cursor = NULL;
+        currentLineNumber = 0;
+
+        clearSelection();
+
+        // Rebuild the linked list from the loaded string.
+        for (size_t i = 0; i < content.size(); ++i)
+        {
+            char ch = content[i];
+
+            if (ch == '\n')
+            {
+                LineNode* newNode = new LineNode();
+
+                newNode->prev = lastLine;
+                lastLine->next = newNode;
+                lastLine = newNode;
+            }
+            else if (ch == '\t')
+            {
+                for (int k = 0; k < 4; ++k)
+                    appendChar(lastLine, ' ');
+            }
+            else if (ch >= 32 && ch <= 126)
+            {
+                appendChar(lastLine, ch);
+            }
+        }
+
+        // Place the cursor at the beginning.
+        currentLine = firstLine;
+        currentLineNumber = 0;
+        cursor = firstLine->head;
+
+        // Update line lookup after rebuilding the document.
+        rebuildSkipList();
     }
 
     // =====================================================
@@ -1471,10 +1562,7 @@ public:
 
         // Belt and braces: if the terminal still raises a Ctrl+C signal,
         // swallow it instead of letting it kill the program.
-<<<<<<< Updated upstream
-=======
         SetConsoleCtrlHandler(NULL, TRUE);          // ignore Ctrl+C outright
->>>>>>> Stashed changes
         SetConsoleCtrlHandler(ctrlHandler, TRUE);
 
         HANDLE hOutput =
@@ -1535,17 +1623,30 @@ public:
             {
                 break;
             }
-<<<<<<< Updated upstream
-            else if (ctrl && vk == 'C')
+            
+            else if (ctrl && vk == 'S')
             {
-                copy();
+                // Ctrl+S: Save the current document.
+                bool saved = saveToFile("document.txt", getText());
+
+                if (!saved)
+                    Beep(500, 200);
             }
-            else if (ctrl && vk == 'X')
+            else if (ctrl && vk == 'O')
             {
-                cut();
+                // Ctrl+O: Open the saved document.
+                string content;
+
+                if (loadFromFile("document.txt", content))
+                {
+                    setText(content);
+                }
+                else
+                {
+                    Beep(500, 200);
+                }
             }
-            else if (ctrl && vk == 'V')
-=======
+
             // Ctrl+C is also matched by its control character (ETX, 3) in
             // case the terminal reports a different virtual-key code.
             else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 ||
@@ -1558,7 +1659,6 @@ public:
                 cut();
             }
             else if ((ctrl && vk == 'V') || (shift && vk == VK_INSERT))
->>>>>>> Stashed changes
             {
                 paste();
             }
@@ -1632,10 +1732,7 @@ public:
         }
 
         SetConsoleCtrlHandler(ctrlHandler, FALSE);
-<<<<<<< Updated upstream
-=======
         SetConsoleCtrlHandler(NULL, FALSE);
->>>>>>> Stashed changes
         SetConsoleMode(hInput, mode);
     }
 
@@ -1663,6 +1760,7 @@ public:
     }
 };
 
+
 int main()
 {
     TextEditor editor;
@@ -1672,8 +1770,16 @@ int main()
     system("cls");
 
     cout << "Final Text:\n\n";
-
     editor.showList();
+
+    if (saveToFile("document.txt", editor.getText()))
+    {
+        cout << "\nDocument saved to document.txt\n";
+    }
+    else
+    {
+        cout << "\nError: Could not save document.txt\n";
+    }
 
     return 0;
 }
