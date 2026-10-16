@@ -82,7 +82,7 @@ struct SkipNode
 class TextEditor
 {
 private:
-
+    string currentFilename;
     LineNode* firstLine;
     LineNode* lastLine;
     LineNode* currentLine;
@@ -536,6 +536,7 @@ public:
     TextEditor()
     {
         srand((unsigned)time(NULL));
+        currentFilename = "";
 
         firstLine = new LineNode();
 
@@ -563,6 +564,90 @@ public:
     ~TextEditor()
     {
         clearClipList();
+    }
+
+    // Add .txt if the user did not specify an extension.
+    string normalizeFilename(string filename)
+    {
+        if (filename.empty())
+            return filename;
+
+        // Only inspect the filename, not dots in the directory path.
+        size_t slash = filename.find_last_of("\\/");
+        size_t dot = filename.find_last_of('.');
+
+        if (dot == string::npos ||
+            (slash != string::npos && dot < slash))
+        {
+            filename += ".txt";
+        }
+
+        return filename;
+    }
+
+    // Save to the current filename, or ask for a new one.
+    bool saveDocument(bool saveAs = false)
+    {
+        if (saveAs || currentFilename.empty())
+        {
+            cout << "\nEnter filename or full path: ";
+
+            string filename;
+            getline(cin, filename);
+
+            if (filename.empty())
+            {
+                cout << "Save cancelled.\n";
+                return false;
+            }
+
+            currentFilename = normalizeFilename(filename);
+        }
+
+        if (saveToFile(currentFilename, getText()))
+        {
+            cout << "\nSaved successfully: "
+                 << currentFilename << "\n";
+            return true;
+        }
+
+        cout << "\nCould not save file: "
+             << currentFilename << "\n";
+        return false;
+    }
+
+    // Open a specific file selected by its path.
+    bool openDocument()
+    {
+        cout << "\nEnter filename or full path to open: ";
+
+        string filename;
+        getline(cin, filename);
+
+        if (filename.empty())
+        {
+            cout << "Open cancelled.\n";
+            return false;
+        }
+
+        filename = normalizeFilename(filename);
+
+        string content;
+
+        if (!loadFromFile(filename, content))
+        {
+            cout << "\nCould not open file: "
+                 << filename << "\n";
+            return false;
+        }
+
+        setText(content);
+        currentFilename = filename;
+
+        cout << "\nOpened successfully: "
+             << currentFilename << "\n";
+
+        return true;
     }
 
     // Convert the editor's linked-list text into a string.
@@ -1624,27 +1709,21 @@ public:
                 break;
             }
             
+            
+            else if (ctrl && shift && vk == 'S')
+            {
+                // Ctrl + Shift + S: Save As
+                saveDocument(true);
+            }
             else if (ctrl && vk == 'S')
             {
-                // Ctrl+S: Save the current document.
-                bool saved = saveToFile("document.txt", getText());
-
-                if (!saved)
-                    Beep(500, 200);
+                // Ctrl + S: Save current file
+                saveDocument(false);
             }
             else if (ctrl && vk == 'O')
             {
-                // Ctrl+O: Open the saved document.
-                string content;
-
-                if (loadFromFile("document.txt", content))
-                {
-                    setText(content);
-                }
-                else
-                {
-                    Beep(500, 200);
-                }
+                // Ctrl + O: Open a specific file
+                openDocument();
             }
 
             // Ctrl+C is also matched by its control character (ETX, 3) in
@@ -1771,15 +1850,6 @@ int main()
 
     cout << "Final Text:\n\n";
     editor.showList();
-
-    if (saveToFile("document.txt", editor.getText()))
-    {
-        cout << "\nDocument saved to document.txt\n";
-    }
-    else
-    {
-        cout << "\nError: Could not save document.txt\n";
-    }
 
     return 0;
 }
