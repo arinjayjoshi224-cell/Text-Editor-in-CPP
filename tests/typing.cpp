@@ -1471,6 +1471,10 @@ public:
 
         // Belt and braces: if the terminal still raises a Ctrl+C signal,
         // swallow it instead of letting it kill the program.
+<<<<<<< Updated upstream
+=======
+        SetConsoleCtrlHandler(NULL, TRUE);          // ignore Ctrl+C outright
+>>>>>>> Stashed changes
         SetConsoleCtrlHandler(ctrlHandler, TRUE);
 
         HANDLE hOutput =
@@ -1531,6 +1535,7 @@ public:
             {
                 break;
             }
+<<<<<<< Updated upstream
             else if (ctrl && vk == 'C')
             {
                 copy();
@@ -1540,6 +1545,20 @@ public:
                 cut();
             }
             else if (ctrl && vk == 'V')
+=======
+            // Ctrl+C is also matched by its control character (ETX, 3) in
+            // case the terminal reports a different virtual-key code.
+            else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 ||
+                     (ctrl && vk == VK_INSERT))
+            {
+                copy();
+            }
+            else if ((ctrl && vk == 'X') || (shift && vk == VK_DELETE))
+            {
+                cut();
+            }
+            else if ((ctrl && vk == 'V') || (shift && vk == VK_INSERT))
+>>>>>>> Stashed changes
             {
                 paste();
             }
@@ -1613,6 +1632,10 @@ public:
         }
 
         SetConsoleCtrlHandler(ctrlHandler, FALSE);
+<<<<<<< Updated upstream
+=======
+        SetConsoleCtrlHandler(NULL, FALSE);
+>>>>>>> Stashed changes
         SetConsoleMode(hInput, mode);
     }
 
