@@ -585,15 +585,79 @@ public:
         return filename;
     }
 
-    // Save to the current filename, or ask for a new one.
-    bool saveDocument(bool saveAs = false)
+    string readFilename()
     {
-        if (saveAs || currentFilename.empty())
+        HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+        HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        INPUT_RECORD input;
+        DWORD events;
+
+        string filename;
+
+        while (true)
+        {
+            if (!ReadConsoleInput(hInput, &input, 1, &events))
+                break;
+
+            if (input.EventType != KEY_EVENT)
+                continue;
+
+            KEY_EVENT_RECORD key = input.Event.KeyEvent;
+
+            if (!key.bKeyDown)
+                continue;
+
+            WORD vk = key.wVirtualKeyCode;
+            char ch = key.uChar.AsciiChar;
+
+            if (vk == VK_RETURN)
+            {
+                cout << '\n';
+                break;
+            }
+
+            if (vk == VK_ESCAPE)
+            {
+                filename.clear();
+                cout << '\n';
+                break;
+            }
+
+            if (vk == VK_BACK)
+            {
+                if (!filename.empty())
+                {
+                    filename.pop_back();
+                    cout << "\b \b";
+                }
+
+                continue;
+            }
+
+            bool ctrl = (key.dwControlKeyState &
+                (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
+
+            if (!ctrl && ch >= 32 && ch <= 126)
+            {
+                filename += ch;
+                cout << ch;
+            }
+        }
+
+        return filename;
+    }
+
+    // Save to the current filename, or ask for a new one.
+   bool saveDocument(bool saveAs = false)
+    {
+        string filename = currentFilename;
+
+        if (saveAs || filename.empty())
         {
             cout << "\nEnter filename or full path: ";
 
-            string filename;
-            getline(cin, filename);
+            filename = readFilename();
 
             if (filename.empty())
             {
@@ -601,18 +665,22 @@ public:
                 return false;
             }
 
-            currentFilename = normalizeFilename(filename);
+            filename = normalizeFilename(filename);
         }
 
-        if (saveToFile(currentFilename, getText()))
+        if (saveToFile(filename, getText()))
         {
+            currentFilename = filename;
+
             cout << "\nSaved successfully: "
-                 << currentFilename << "\n";
+                << currentFilename << "\n";
+
             return true;
         }
 
         cout << "\nCould not save file: "
-             << currentFilename << "\n";
+            << filename << "\n";
+
         return false;
     }
 
@@ -621,8 +689,7 @@ public:
     {
         cout << "\nEnter filename or full path to open: ";
 
-        string filename;
-        getline(cin, filename);
+        string filename = readFilename();
 
         if (filename.empty())
         {
@@ -637,15 +704,17 @@ public:
         if (!loadFromFile(filename, content))
         {
             cout << "\nCould not open file: "
-                 << filename << "\n";
+                << filename << "\n";
+
             return false;
         }
 
         setText(content);
+
         currentFilename = filename;
 
         cout << "\nOpened successfully: "
-             << currentFilename << "\n";
+            << currentFilename << "\n";
 
         return true;
     }
@@ -1642,7 +1711,8 @@ public:
         // No ENABLE_PROCESSED_INPUT: Ctrl+C arrives as a normal key event.
         SetConsoleMode(
             hInput,
-            ENABLE_EXTENDED_FLAGS
+            ENABLE_EXTENDED_FLAGS |
+            ENABLE_WINDOW_INPUT
         );
 
         // Belt and braces: if the terminal still raises a Ctrl+C signal,
