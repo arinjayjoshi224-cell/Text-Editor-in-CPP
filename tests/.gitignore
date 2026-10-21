@@ -1,2 +1,2 @@
-output/
-a.exe
+*.exe
+*.txt
