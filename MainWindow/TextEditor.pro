@@ -1,7 +1,0 @@
-QT += widgets
-
-CONFIG += c++17
-
-SOURCES += main.cpp
-
-FORMS += mainwindow.ui
