@@ -4,128 +4,107 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
-#include <ctime>
 
 int TextEditor::getCurrentColumn()
 {
-        int column = 0;
+    int column = 0;
 
-        CharNode* temp = currentLine->head;
+    CharNode* temp = currentLine->head;
 
-        while (temp != NULL)
-        {
-            if (temp == cursor)
-                return column;
+    while (temp != NULL)
+    {
+        if (temp == cursor)
+            return column;
 
-            column++;
+        column++;
 
-            temp = temp->next;
-        }
-
-        return column;
+        temp = temp->next;
     }
+
+    return column;
+}
 
 int TextEditor::getLineLength(LineNode* line)
 {
-        int length = 0;
+    int length = 0;
 
-        CharNode* temp = line->head;
+    CharNode* temp = line->head;
 
-        while (temp != NULL)
-        {
-            length++;
+    while (temp != NULL)
+    {
+        length++;
 
-            temp = temp->next;
-        }
-
-        return length;
+        temp = temp->next;
     }
+
+    return length;
+}
 
 void TextEditor::setCursorColumn(int column)
 {
-        if (column <= 0)
-        {
-            cursor = currentLine->head;
-            return;
-        }
-
-        CharNode* temp = currentLine->head;
-
-        int currentColumn = 0;
-
-        while (
-            temp != NULL &&
-            currentColumn < column
-        )
-        {
-            temp = temp->next;
-            currentColumn++;
-        }
-
-        cursor = temp;
+    if (column <= 0)
+    {
+        cursor = currentLine->head;
+        return;
     }
+
+    CharNode* temp = currentLine->head;
+
+    int currentColumn = 0;
+
+    while (
+        temp != NULL &&
+        currentColumn < column
+    )
+    {
+        temp = temp->next;
+        currentColumn++;
+    }
+
+    cursor = temp;
+}
 
 void TextEditor::updateCurrentLineNumber()
 {
-        currentLineNumber = 0;
+    currentLineNumber = 0;
 
-        LineNode* temp = firstLine;
+    LineNode* temp = firstLine;
 
-        while (temp != NULL)
-        {
-            if (temp == currentLine)
-                return;
+    while (temp != NULL)
+    {
+        if (temp == currentLine)
+            return;
 
-            currentLineNumber++;
+        currentLineNumber++;
 
-            temp = temp->next;
-        }
+        temp = temp->next;
     }
+}
 
 void TextEditor::moveTo(int line, int column)
 {
-        LineNode* l = firstLine;
-        int n = 0;
+    LineNode* l = firstLine;
+    int n = 0;
 
-        while (n < line && l->next != NULL)
-        {
-            l = l->next;
-            n++;
-        }
-
-        currentLine = l;
-        currentLineNumber = n;
-
-        setCursorColumn(column);
+    while (n < line && l->next != NULL)
+    {
+        l = l->next;
+        n++;
     }
+
+    currentLine = l;
+    currentLineNumber = n;
+
+    setCursorColumn(column);
+}
 
 void TextEditor::moveLeft()
 {
-        if (cursor != NULL)
+    if (cursor != NULL)
+    {
+        if (cursor->prev != NULL)
         {
-            if (cursor->prev != NULL)
-            {
-                cursor = cursor->prev;
-            }
-            else
-            {
-                if (currentLine->prev != NULL)
-                {
-                    currentLine =
-                        currentLine->prev;
-
-                    updateCurrentLineNumber();
-
-                    cursor = NULL;
-                }
-            }
-
-            return;
-        }
-
-        if (currentLine->tail != NULL)
-        {
-            cursor = currentLine->tail;
+            cursor = cursor->prev;
         }
         else
         {
@@ -139,105 +118,124 @@ void TextEditor::moveLeft()
                 cursor = NULL;
             }
         }
+
+        return;
     }
 
-void TextEditor::moveRight()
-{
-        if (cursor != NULL)
-        {
-            if (cursor->next != NULL)
-            {
-                cursor = cursor->next;
-            }
-            else
-            {
-                if (currentLine->next != NULL)
-                {
-                    currentLine =
-                        currentLine->next;
-
-                    updateCurrentLineNumber();
-
-                    cursor =
-                        currentLine->head;
-                }
-                else
-                {
-                    cursor = NULL;
-                }
-            }
-
-            return;
-        }
-
-        if (currentLine->next != NULL)
+    if (currentLine->tail != NULL)
+    {
+        cursor = currentLine->tail;
+    }
+    else
+    {
+        if (currentLine->prev != NULL)
         {
             currentLine =
-                currentLine->next;
+                currentLine->prev;
 
             updateCurrentLineNumber();
 
-            cursor =
-                currentLine->head;
+            cursor = NULL;
         }
     }
+}
+
+void TextEditor::moveRight()
+{
+    if (cursor != NULL)
+    {
+        if (cursor->next != NULL)
+        {
+            cursor = cursor->next;
+        }
+        else
+        {
+            if (currentLine->next != NULL)
+            {
+                currentLine =
+                    currentLine->next;
+
+                updateCurrentLineNumber();
+
+                cursor =
+                    currentLine->head;
+            }
+            else
+            {
+                cursor = NULL;
+            }
+        }
+
+        return;
+    }
+
+    if (currentLine->next != NULL)
+    {
+        currentLine =
+            currentLine->next;
+
+        updateCurrentLineNumber();
+
+        cursor =
+            currentLine->head;
+    }
+}
 
 void TextEditor::moveUp()
 {
-        if (currentLineNumber == 0)
-            return;
+    if (currentLineNumber == 0)
+        return;
 
-        int column =
-            getCurrentColumn();
+    int column =
+        getCurrentColumn();
 
-        int targetLineNumber =
-            currentLineNumber - 1;
+    int targetLineNumber =
+        currentLineNumber - 1;
 
-        LineNode* target =
-            getLine(targetLineNumber);
+    LineNode* target =
+        getLine(targetLineNumber);
 
-        if (target == NULL)
-            return;
+    if (target == NULL)
+        return;
 
-        currentLine = target;
+    currentLine = target;
 
-        currentLineNumber =
-            targetLineNumber;
+    currentLineNumber =
+        targetLineNumber;
 
-        int length =
-            getLineLength(currentLine);
+    int length =
+        getLineLength(currentLine);
 
-        column =
-            min(column, length);
+    column =
+        min(column, length);
 
-        setCursorColumn(column);
-    }
+    setCursorColumn(column);
+}
 
 void TextEditor::moveDown()
 {
-        int column =
-            getCurrentColumn();
+    int column =
+        getCurrentColumn();
 
-        int targetLineNumber =
-            currentLineNumber + 1;
+    int targetLineNumber =
+        currentLineNumber + 1;
 
-        LineNode* target =
-            getLine(targetLineNumber);
+    LineNode* target =
+        getLine(targetLineNumber);
 
-        if (target == NULL)
-            return;
+    if (target == NULL)
+        return;
 
-        currentLine = target;
+    currentLine = target;
 
-        currentLineNumber =
-            targetLineNumber;
+    currentLineNumber =
+        targetLineNumber;
 
-        int length =
-            getLineLength(currentLine);
+    int length =
+        getLineLength(currentLine);
 
-        column =
-            min(column, length);
+    column =
+        min(column, length);
 
-        setCursorColumn(column);
-    }
-
+    setCursorColumn(column);
+}
