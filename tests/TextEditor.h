@@ -41,6 +41,11 @@ private:
     int getLineLength(LineNode* line);
     void setCursorColumn(int column);
     void updateCurrentLineNumber();
+    string undoHistory[100];
+    string redoHistory[100];
+
+    int undoTop = -1;
+    int redoTop = -1;
 public:
     TextEditor();
     ~TextEditor();
@@ -78,5 +83,8 @@ public:
     void display();
     void start();
     void showList();
+    void saveHistory();
+    void undo();
+    void redo();
 };
 #endif

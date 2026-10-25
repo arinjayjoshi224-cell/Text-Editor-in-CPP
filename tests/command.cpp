@@ -38,6 +38,26 @@ class Command
     stack<Operation> undoStack;
     stack<Operation> redoStack;
 
+    void insert()
+    {   
+    }
+
+    void deleteText()
+    {  
+    }
+
+    void backspace()
+    {  
+    }
+
+    void left()
+    {   
+    }
+
+    void right()
+    {
+    }
+
 public:
 
     void copy()

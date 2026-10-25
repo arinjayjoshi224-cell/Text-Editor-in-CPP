@@ -106,6 +106,15 @@ void TextEditor::start()
             openDocument();
         }
 
+        else if (ctrl && vk == 'Z')
+        {
+           undo();
+        }
+        else if (ctrl && vk == 'Y')
+        {
+           redo();
+        }
+
         // Ctrl+C is also matched by its control character (ETX, 3) in
         // case the terminal reports a different virtual-key code.
         else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 ||

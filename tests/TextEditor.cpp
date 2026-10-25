@@ -395,4 +395,38 @@ void TextEditor::newLine()
 
         rebuildSkipList();
     }
+void TextEditor::saveHistory()
+{
+    if (undoTop < 99)
+    {
+        undoHistory[++undoTop] = getText();
+    }
 
+    redoTop = -1;
+}
+
+void TextEditor::undo()
+{
+    if (undoTop == -1)
+        return;
+
+    if (redoTop < 99)
+    {
+        redoHistory[++redoTop] = getText();
+    }
+
+    setText(undoHistory[undoTop--]);
+}
+
+void TextEditor::redo()
+{
+    if (redoTop == -1)
+        return;
+
+    if (undoTop < 99)
+    {
+        undoHistory[++undoTop] = getText();
+    }
+
+    setText(redoHistory[redoTop--]);
+}
