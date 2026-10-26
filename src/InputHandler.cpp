@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
-#include <ctime>
 
 void TextEditor::start()
 {
@@ -19,29 +18,21 @@ void TextEditor::start()
     );
 
     // No ENABLE_PROCESSED_INPUT: Ctrl+C arrives as a normal key event.
-    SetConsoleMode(
-        hInput,
-        ENABLE_EXTENDED_FLAGS |
-        ENABLE_WINDOW_INPUT
-    );
+    SetConsoleMode(hInput, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT );
 
     // Belt and braces: if the terminal still raises a Ctrl+C signal,
     // swallow it instead of letting it kill the program.
     SetConsoleCtrlHandler(NULL, TRUE);          // ignore Ctrl+C outright
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
 
-    HANDLE hOutput =
-        GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_CURSOR_INFO cursorInfo;
 
     cursorInfo.dwSize = 20;
     cursorInfo.bVisible = TRUE;
 
-    SetConsoleCursorInfo(
-        hOutput,
-        &cursorInfo
-    );
+    SetConsoleCursorInfo (hOutput, &cursorInfo);
 
     INPUT_RECORD input;
 
