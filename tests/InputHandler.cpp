@@ -124,10 +124,12 @@ void TextEditor::start()
         }
         else if ((ctrl && vk == 'X') || (shift && vk == VK_DELETE))
         {
+            saveHistory();
             cut();
         }
         else if ((ctrl && vk == 'V') || (shift && vk == VK_INSERT))
         {
+            saveHistory();
             paste();
         }
         else if (ctrl && vk == 'A')
@@ -177,16 +179,21 @@ void TextEditor::start()
         }
         else if (vk == VK_BACK)
         {
+            saveHistory();
+
             if (!deleteSelection())
                 backspace();
         }
         else if (vk == VK_DELETE)
         {
+            saveHistory();
+
             if (!deleteSelection())
                 deleteChar();
         }
         else if (vk == VK_RETURN)
         {
+            saveHistory();
             deleteSelection();
             newLine();
         }
@@ -194,6 +201,7 @@ void TextEditor::start()
                     key.uChar.AsciiChar >= 32 &&
                     key.uChar.AsciiChar <= 126)
         {
+            saveHistory();
             deleteSelection();      // typing replaces selection
             insert(key.uChar.AsciiChar);
         }
