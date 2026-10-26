@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <climits>
 #include "EditorNodes.h"
+#include "Command.h"
 
 using namespace std;
 
@@ -27,6 +28,8 @@ private:
     LineNode* clipHead;
     LineNode* clipTail;
     int clipLineCount;
+    Command history;
+    bool typingGroupOpen;
 
     void clearClipList();
     void appendChar(LineNode* line, char ch);
@@ -78,5 +81,9 @@ public:
     void display();
     void start();
     void showList();
+    EditorSnapshot captureSnapshot();
+    void recordEdit(const EditorSnapshot& before,bool isTyping = false,bool endGroup = false);
+    void undo();
+    void redo();
 };
 #endif

@@ -1,62 +1,39 @@
-#include <iostream>
-#include <string>
-#include <stack>
-using namespace std;
+#include "Command.h"
 
-class Command
+void Command::record(const EditorSnapshot& before, const EditorSnapshot& after)
 {
-    struct Node
-    {
-        char data;
-        Node* prev;
-        Node* next;
+    if (before.text == after.text)
+        return;
 
-        Node(char ch)
-        {
-            data = ch;
-            prev = NULL;
-            next = NULL;
-        }
-    };
+    undoStack.push(before);
+    while (!redoStack.empty())
+        redoStack.pop();
+}
 
-    struct Operation
-    {
-        string type;
-        int pos;
-        string text;
+bool Command::undo(const EditorSnapshot& current, EditorSnapshot& target)
+{
+    if (undoStack.empty())
+        return false;
 
-        Operation(string t, int p, string txt)
-        {
-            type = t;
-            pos = p;
-            text = txt;
-        }
-    };
+    redoStack.push(current);
+    target = undoStack.top();
+    undoStack.pop();
+    return true;
+}
 
-    Node* head = NULL;
+bool Command::redo(const EditorSnapshot& current, EditorSnapshot& target)
+{
+    if (redoStack.empty())
+        return false;
 
-    stack<Operation> undoStack;
-    stack<Operation> redoStack;
+    undoStack.push(current);
+    target = redoStack.top();
+    redoStack.pop();
+    return true;
+}
 
-public:
-
-    void copy()
-    {
-    }
-
-    void cut()
-    {
-    }
-
-    void paste()
-    {
-    }
-
-    void undo()
-    {
-    }
-
-    void redo()
-    {
-    }
-};
+void Command::clear()
+{
+    while (!undoStack.empty()) undoStack.pop();
+    while (!redoStack.empty()) redoStack.pop();
+}

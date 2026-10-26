@@ -84,6 +84,20 @@ void TextEditor::start()
 
         WORD vk = key.wVirtualKeyCode;
 
+        EditorSnapshot beforeEdit = captureSnapshot();
+        bool isTyping = false;
+
+        if (ctrl && vk == 'Z')
+        {
+            undo();
+            continue;
+        }
+        else if (ctrl && vk == 'Y')
+        {
+            redo();
+            continue;
+        }
+
         if (vk == VK_ESCAPE)
         {
             break;
@@ -181,13 +195,13 @@ void TextEditor::start()
             deleteSelection();
             newLine();
         }
-        else if (!ctrl &&
-                    key.uChar.AsciiChar >= 32 &&
-                    key.uChar.AsciiChar <= 126)
+        else if (!ctrl && key.uChar.AsciiChar >= 32 && key.uChar.AsciiChar <= 126)
         {
-            deleteSelection();      // typing replaces selection
+            deleteSelection();
             insert(key.uChar.AsciiChar);
+            isTyping = true;
         }
+        recordEdit( beforeEdit, isTyping, isTyping && key.uChar.AsciiChar == ' ');
     }
 
     SetConsoleCtrlHandler(ctrlHandler, FALSE);

@@ -4,31 +4,32 @@
 
 TextEditor::TextEditor()
 {
-        srand((unsigned)time(NULL));
-        currentFilename = "";
+    srand((unsigned)time(NULL));
+    currentFilename = "";
 
-        firstLine = new LineNode();
+    firstLine = new LineNode();
 
-        lastLine = firstLine;
-        currentLine = firstLine;
+    lastLine = firstLine;
+    currentLine = firstLine;
 
-        cursor = NULL;
+    cursor = NULL;
 
-        currentLineNumber = 0;
+    currentLineNumber = 0;
 
-        skipHead = NULL;
-        skipLevel = 1;
+    skipHead = NULL;
+    skipLevel = 1;
 
-        hasSelection = false;
-        anchorLine = 0;
-        anchorCol = 0;
+    typingGroupOpen = false;
+    hasSelection = false;
+    anchorLine = 0;
+    anchorCol = 0;
 
-        clipHead = NULL;
-        clipTail = NULL;
-        clipLineCount = 0;
+    clipHead = NULL;
+    clipTail = NULL;
+    clipLineCount = 0;
 
-        rebuildSkipList();
-    }
+    rebuildSkipList();
+}
 
 TextEditor::~TextEditor()
 {
@@ -396,3 +397,61 @@ void TextEditor::newLine()
         rebuildSkipList();
     }
 
+
+EditorSnapshot TextEditor::captureSnapshot()
+{
+    EditorSnapshot snapshot;
+    snapshot.text = getText();
+    snapshot.line = currentLineNumber;
+    snapshot.column = getCurrentColumn();
+    return snapshot;
+}
+
+
+void TextEditor::recordEdit(const EditorSnapshot& before,bool isTyping,bool endGroup)
+{
+    EditorSnapshot after = captureSnapshot();
+
+    if (isTyping)
+    {
+        if (!typingGroupOpen)
+        {
+            history.record(before, after);
+            typingGroupOpen = true;
+        }
+
+        if (endGroup)
+            typingGroupOpen = false;
+    }
+    else
+    {
+        typingGroupOpen = false;
+        history.record(before, after);
+    }
+}
+
+void TextEditor::undo()
+{
+    typingGroupOpen = false;
+
+    EditorSnapshot target;
+    if (history.undo(captureSnapshot(), target))
+    {
+        setText(target.text);
+        moveTo(target.line, target.column);
+        clearSelection();
+    }
+}
+
+void TextEditor::redo()
+{
+    typingGroupOpen = false;
+
+    EditorSnapshot target;
+    if (history.redo(captureSnapshot(), target))
+    {
+        setText(target.text);
+        moveTo(target.line, target.column);
+        clearSelection();
+    }
+}
