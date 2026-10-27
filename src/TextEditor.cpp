@@ -4,31 +4,31 @@
 
 TextEditor::TextEditor()
 {
-        srand((unsigned)time(NULL));
-        currentFilename = "";
+    srand((unsigned)time(NULL));
+    currentFilename = "";
 
-        firstLine = new LineNode();
+    firstLine = new LineNode();
 
-        lastLine = firstLine;
-        currentLine = firstLine;
+    lastLine = firstLine;
+    currentLine = firstLine;
 
-        cursor = NULL;
+    cursor = NULL;
+    currentLineNumber = 0;
 
-        currentLineNumber = 0;
+    skipHead = NULL;
+    skipLevel = 1;
 
-        skipHead = NULL;
-        skipLevel = 1;
+    typingGroupOpen = false;
+    hasSelection = false;
+    anchorLine = 0;
+    anchorCol = 0;
 
-        hasSelection = false;
-        anchorLine = 0;
-        anchorCol = 0;
+    clipHead = NULL;
+    clipTail = NULL;
+    clipLineCount = 0;
 
-        clipHead = NULL;
-        clipTail = NULL;
-        clipLineCount = 0;
-
-        rebuildSkipList();
-    }
+    rebuildSkipList();
+}
 
 TextEditor::~TextEditor()
 {
@@ -308,64 +308,11 @@ void TextEditor::mergeWithNextLine()
 
 void TextEditor::newLine()
 {
-        LineNode* newLine =
-            new LineNode();
+    LineNode* newLine =
+        new LineNode();
 
-        if (cursor == NULL)
-        {
-            newLine->prev =
-                currentLine;
-
-            newLine->next =
-                currentLine->next;
-
-            if (currentLine->next != NULL)
-            {
-                currentLine->next->prev =
-                    newLine;
-            }
-            else
-            {
-                lastLine = newLine;
-            }
-
-            currentLine->next =
-                newLine;
-
-            currentLine =
-                newLine;
-
-            cursor = NULL;
-
-            updateCurrentLineNumber();
-
-            rebuildSkipList();
-
-            return;
-        }
-
-        newLine->head = cursor;
-        newLine->tail =
-            currentLine->tail;
-
-        CharNode* left =
-            cursor->prev;
-
-        if (left != NULL)
-        {
-            left->next = NULL;
-
-            currentLine->tail =
-                left;
-        }
-        else
-        {
-            currentLine->head = NULL;
-            currentLine->tail = NULL;
-        }
-
-        cursor->prev = NULL;
-
+    if (cursor == NULL)
+    {
         newLine->prev =
             currentLine;
 
@@ -388,45 +335,122 @@ void TextEditor::newLine()
         currentLine =
             newLine;
 
-        cursor =
-            newLine->head;
+        cursor = NULL;
 
         updateCurrentLineNumber();
 
         rebuildSkipList();
-    }
-void TextEditor::saveHistory()
-{
-    if (undoTop < 99)
-    {
-        undoHistory[++undoTop] = getText();
+
+        return;
     }
 
-    redoTop = -1;
+    newLine->head = cursor;
+    newLine->tail =
+        currentLine->tail;
+
+    CharNode* left =
+        cursor->prev;
+
+    if (left != NULL)
+    {
+        left->next = NULL;
+
+        currentLine->tail =
+            left;
+    }
+    else
+    {
+        currentLine->head = NULL;
+        currentLine->tail = NULL;
+    }
+
+    cursor->prev = NULL;
+
+    newLine->prev =
+        currentLine;
+
+    newLine->next =
+        currentLine->next;
+
+    if (currentLine->next != NULL)
+    {
+        currentLine->next->prev =
+            newLine;
+    }
+    else
+    {
+        lastLine = newLine;
+    }
+
+    currentLine->next =
+        newLine;
+
+    currentLine =
+        newLine;
+
+    cursor =
+        newLine->head;
+
+    updateCurrentLineNumber();
+
+    rebuildSkipList();
+}
+
+
+EditorSnapshot TextEditor::captureSnapshot()
+{
+    EditorSnapshot snapshot;
+    snapshot.text = getText();
+    snapshot.line = currentLineNumber;
+    snapshot.column = getCurrentColumn();
+    return snapshot;
+}
+
+
+void TextEditor::recordEdit(const EditorSnapshot& before,bool isTyping,bool endGroup)
+{
+    EditorSnapshot after = captureSnapshot();
+
+    if (isTyping)
+    {
+        if (!typingGroupOpen)
+        {
+            history.record(before, after);
+            typingGroupOpen = true;
+        }
+
+        if (endGroup)
+            typingGroupOpen = false;
+    }
+    else
+    {
+        typingGroupOpen = false;
+        history.record(before, after);
+    }
 }
 
 void TextEditor::undo()
 {
-    if (undoTop == -1)
-        return;
+    typingGroupOpen = false;
 
-    if (redoTop < 99)
+    EditorSnapshot target;
+    if (history.undo(captureSnapshot(), target))
     {
-        redoHistory[++redoTop] = getText();
+        setText(target.text);
+        moveTo(target.line, target.column);
+        clearSelection();
     }
-
-    setText(undoHistory[undoTop--]);
 }
 
 void TextEditor::redo()
 {
-    if (redoTop == -1)
-        return;
+    typingGroupOpen = false;
 
-    if (undoTop < 99)
+    EditorSnapshot target;
+    if (history.redo(captureSnapshot(), target))
     {
-        undoHistory[++undoTop] = getText();
+        setText(target.text);
+        moveTo(target.line, target.column);
+        clearSelection();
     }
-
-    setText(redoHistory[redoTop--]);
 }

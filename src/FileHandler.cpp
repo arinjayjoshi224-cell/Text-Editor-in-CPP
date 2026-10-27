@@ -4,17 +4,14 @@
 #include <fstream>
 #include <string>
 
-bool saveToFile(const std::string& filename,
-                const std::string& content)
+bool saveToFile(const std::string& filename, const std::string& content)
 {
-    std::ofstream file(filename.c_str(),
-                       std::ios::binary);
+    std::ofstream file(filename.c_str(),std::ios::binary);
 
     if (!file.is_open())
         return false;
 
-    file.write(content.data(),
-               static_cast<std::streamsize>(content.size()));
+    file.write(content.data(),static_cast<std::streamsize>(content.size()));
 
     if (!file.good())
         return false;
@@ -23,11 +20,9 @@ bool saveToFile(const std::string& filename,
     return !file.fail();
 }
 
-bool loadFromFile(const std::string& filename,
-                  std::string& content)
+bool loadFromFile(const std::string& filename,std::string& content)
 {
-    std::ifstream file(filename.c_str(),
-                       std::ios::binary);
+    std::ifstream file(filename.c_str(), std::ios::binary);
 
     if (!file.is_open())
         return false;

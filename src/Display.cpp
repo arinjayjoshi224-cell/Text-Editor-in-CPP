@@ -8,15 +8,15 @@
 
 void TextEditor::flushBuffer(HANDLE hOut, string& buf)
 {
-        if (buf.empty())
-            return;
+    if (buf.empty())
+        return;
 
-        DWORD written;
+    DWORD written;
 
-        WriteConsoleA(hOut, buf.c_str(), (DWORD)buf.size(), &written, NULL);
+    WriteConsoleA(hOut, buf.c_str(), (DWORD)buf.size(), &written, NULL);
 
-        buf.clear();
-    }
+    buf.clear();
+}
 
 void TextEditor::clearScreen(HANDLE hOut)
 {

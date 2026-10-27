@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <climits>
 #include "EditorNodes.h"
+#include "Command.h"
 
 using namespace std;
 
@@ -20,14 +21,15 @@ private:
     int currentLineNumber;
     SkipNode* skipHead;
     int skipLevel;
-    bool hasSelection;      // true while a selection anchor is active
-    int anchorLine;         // where the selection started
+    bool hasSelection;
+    int anchorLine;
     int anchorCol;
-    string clipboard;       // raw text of last copy/cut ('\n' separates lines)
+    string clipboard;
     LineNode* clipHead;
     LineNode* clipTail;
     int clipLineCount;
-
+    Command history;
+    bool typingGroupOpen;
     void clearClipList();
     void appendChar(LineNode* line, char ch);
     void buildClipList(const string& text);
@@ -41,11 +43,6 @@ private:
     int getLineLength(LineNode* line);
     void setCursorColumn(int column);
     void updateCurrentLineNumber();
-    string undoHistory[100];
-    string redoHistory[100];
-
-    int undoTop = -1;
-    int redoTop = -1;
 public:
     TextEditor();
     ~TextEditor();
@@ -83,7 +80,8 @@ public:
     void display();
     void start();
     void showList();
-    void saveHistory();
+    EditorSnapshot captureSnapshot();
+    void recordEdit(const EditorSnapshot& before,bool isTyping = false,bool endGroup = false);
     void undo();
     void redo();
 };

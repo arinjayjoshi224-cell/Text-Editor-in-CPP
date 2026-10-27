@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
-#include <ctime>
 
 void TextEditor::start()
 {
@@ -19,29 +18,21 @@ void TextEditor::start()
     );
 
     // No ENABLE_PROCESSED_INPUT: Ctrl+C arrives as a normal key event.
-    SetConsoleMode(
-        hInput,
-        ENABLE_EXTENDED_FLAGS |
-        ENABLE_WINDOW_INPUT
-    );
+    SetConsoleMode(hInput, ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT );
 
     // Belt and braces: if the terminal still raises a Ctrl+C signal,
     // swallow it instead of letting it kill the program.
     SetConsoleCtrlHandler(NULL, TRUE);          // ignore Ctrl+C outright
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
 
-    HANDLE hOutput =
-        GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_CURSOR_INFO cursorInfo;
 
     cursorInfo.dwSize = 20;
     cursorInfo.bVisible = TRUE;
 
-    SetConsoleCursorInfo(
-        hOutput,
-        &cursorInfo
-    );
+    SetConsoleCursorInfo (hOutput, &cursorInfo);
 
     INPUT_RECORD input;
 
@@ -84,6 +75,20 @@ void TextEditor::start()
 
         WORD vk = key.wVirtualKeyCode;
 
+        EditorSnapshot beforeEdit = captureSnapshot();
+        bool isTyping = false;
+
+        if (ctrl && vk == 'Z')
+        {
+            undo();
+            continue;
+        }
+        else if (ctrl && vk == 'Y')
+        {
+            redo();
+            continue;
+        }
+
         if (vk == VK_ESCAPE)
         {
             break;
@@ -106,15 +111,6 @@ void TextEditor::start()
             openDocument();
         }
 
-        else if (ctrl && vk == 'Z')
-        {
-           undo();
-        }
-        else if (ctrl && vk == 'Y')
-        {
-           redo();
-        }
-
         // Ctrl+C is also matched by its control character (ETX, 3) in
         // case the terminal reports a different virtual-key code.
         else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 ||
@@ -124,12 +120,10 @@ void TextEditor::start()
         }
         else if ((ctrl && vk == 'X') || (shift && vk == VK_DELETE))
         {
-            saveHistory();
             cut();
         }
         else if ((ctrl && vk == 'V') || (shift && vk == VK_INSERT))
         {
-            saveHistory();
             paste();
         }
         else if (ctrl && vk == 'A')
@@ -179,32 +173,26 @@ void TextEditor::start()
         }
         else if (vk == VK_BACK)
         {
-            saveHistory();
-
             if (!deleteSelection())
                 backspace();
         }
         else if (vk == VK_DELETE)
         {
-            saveHistory();
-
             if (!deleteSelection())
                 deleteChar();
         }
         else if (vk == VK_RETURN)
         {
-            saveHistory();
             deleteSelection();
             newLine();
         }
-        else if (!ctrl &&
-                    key.uChar.AsciiChar >= 32 &&
-                    key.uChar.AsciiChar <= 126)
+        else if (!ctrl && key.uChar.AsciiChar >= 32 && key.uChar.AsciiChar <= 126)
         {
-            saveHistory();
-            deleteSelection();      // typing replaces selection
+            deleteSelection();
             insert(key.uChar.AsciiChar);
+            isTyping = true;
         }
+        recordEdit( beforeEdit, isTyping, isTyping && key.uChar.AsciiChar == ' ');
     }
 
     SetConsoleCtrlHandler(ctrlHandler, FALSE);

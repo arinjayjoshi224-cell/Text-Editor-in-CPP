@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
-#include <ctime>
 
 void TextEditor::clearSkipList()
 {
