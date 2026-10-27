@@ -5,7 +5,6 @@
 #include <cstring>
 #include <cstdlib>
 
-
 void TextEditor::clearSkipList()
 {
     if (skipHead == NULL)

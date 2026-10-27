@@ -21,16 +21,15 @@ private:
     int currentLineNumber;
     SkipNode* skipHead;
     int skipLevel;
-    bool hasSelection;      // true while a selection anchor is active
-    int anchorLine;         // where the selection started
+    bool hasSelection;
+    int anchorLine;
     int anchorCol;
-    string clipboard;       // raw text of last copy/cut ('\n' separates lines)
+    string clipboard;
     LineNode* clipHead;
     LineNode* clipTail;
     int clipLineCount;
     Command history;
     bool typingGroupOpen;
-
     void clearClipList();
     void appendChar(LineNode* line, char ch);
     void buildClipList(const string& text);

@@ -13,7 +13,6 @@ TextEditor::TextEditor()
     currentLine = firstLine;
 
     cursor = NULL;
-
     currentLineNumber = 0;
 
     skipHead = NULL;
@@ -309,64 +308,11 @@ void TextEditor::mergeWithNextLine()
 
 void TextEditor::newLine()
 {
-        LineNode* newLine =
-            new LineNode();
+    LineNode* newLine =
+        new LineNode();
 
-        if (cursor == NULL)
-        {
-            newLine->prev =
-                currentLine;
-
-            newLine->next =
-                currentLine->next;
-
-            if (currentLine->next != NULL)
-            {
-                currentLine->next->prev =
-                    newLine;
-            }
-            else
-            {
-                lastLine = newLine;
-            }
-
-            currentLine->next =
-                newLine;
-
-            currentLine =
-                newLine;
-
-            cursor = NULL;
-
-            updateCurrentLineNumber();
-
-            rebuildSkipList();
-
-            return;
-        }
-
-        newLine->head = cursor;
-        newLine->tail =
-            currentLine->tail;
-
-        CharNode* left =
-            cursor->prev;
-
-        if (left != NULL)
-        {
-            left->next = NULL;
-
-            currentLine->tail =
-                left;
-        }
-        else
-        {
-            currentLine->head = NULL;
-            currentLine->tail = NULL;
-        }
-
-        cursor->prev = NULL;
-
+    if (cursor == NULL)
+    {
         newLine->prev =
             currentLine;
 
@@ -389,13 +335,66 @@ void TextEditor::newLine()
         currentLine =
             newLine;
 
-        cursor =
-            newLine->head;
+        cursor = NULL;
 
         updateCurrentLineNumber();
 
         rebuildSkipList();
+
+        return;
     }
+
+    newLine->head = cursor;
+    newLine->tail =
+        currentLine->tail;
+
+    CharNode* left =
+        cursor->prev;
+
+    if (left != NULL)
+    {
+        left->next = NULL;
+
+        currentLine->tail =
+            left;
+    }
+    else
+    {
+        currentLine->head = NULL;
+        currentLine->tail = NULL;
+    }
+
+    cursor->prev = NULL;
+
+    newLine->prev =
+        currentLine;
+
+    newLine->next =
+        currentLine->next;
+
+    if (currentLine->next != NULL)
+    {
+        currentLine->next->prev =
+            newLine;
+    }
+    else
+    {
+        lastLine = newLine;
+    }
+
+    currentLine->next =
+        newLine;
+
+    currentLine =
+        newLine;
+
+    cursor =
+        newLine->head;
+
+    updateCurrentLineNumber();
+
+    rebuildSkipList();
+}
 
 
 EditorSnapshot TextEditor::captureSnapshot()
