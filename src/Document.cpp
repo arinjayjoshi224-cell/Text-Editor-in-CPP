@@ -89,37 +89,31 @@ string TextEditor::readFilename()
 
 bool TextEditor::openDocument()
 {
-        cout << "\nEnter filename or full path to open: ";
+    string filename;
 
-        string filename = readFilename();
-
-        if (filename.empty())
-        {
-            cout << "Open cancelled.\n";
-            return false;
-        }
-
-        filename = normalizeFilename(filename);
-
-        string content;
-
-        if (!loadFromFile(filename, content))
-        {
-            cout << "\nCould not open file: "
-                << filename << "\n";
-
-            return false;
-        }
-
-        setText(content);
-
-        currentFilename = filename;
-
-        cout << "\nOpened successfully: "
-            << currentFilename << "\n";
-
-        return true;
+    if (!chooseOpenFilename(filename))
+    {
+        cout << "\nOpen cancelled.\n";
+        return false;
     }
+
+    string content;
+
+    if (!loadFromFile(filename, content))
+    {
+        cout << "\nCould not open file: "
+             << filename << "\n";
+        return false;
+    }
+
+    setText(content);
+    currentFilename = filename;
+
+    cout << "\nOpened successfully: "
+         << currentFilename << "\n";
+
+    return true;
+}
 
 string TextEditor::getText()
 {
@@ -212,35 +206,29 @@ void TextEditor::setText(const string& content)
 
 bool TextEditor::saveDocument(bool saveAs)
 {
-        string filename = currentFilename;
+    string filename = currentFilename;
 
-        if (saveAs || filename.empty())
+    if (saveAs || filename.empty())
+    {
+        if (!chooseSaveFilename(filename))
         {
-            cout << "\nEnter filename or full path: ";
-
-            filename = readFilename();
-
-            if (filename.empty())
-            {
-                cout << "Save cancelled.\n";
-                return false;
-            }
-
-            filename = normalizeFilename(filename);
+            cout << "\nSave cancelled.\n";
+            return false;
         }
-
-        if (saveToFile(filename, getText()))
-        {
-            currentFilename = filename;
-
-            cout << "\nSaved successfully: "
-                << currentFilename << "\n";
-
-            return true;
-        }
-
-        cout << "\nCould not save file: "
-            << filename << "\n";
-
-        return false;
     }
+
+    if (saveToFile(filename, getText()))
+    {
+        currentFilename = filename;
+
+        cout << "\nSaved successfully: "
+             << currentFilename << "\n";
+
+        return true;
+    }
+
+    cout << "\nCould not save file: "
+         << filename << "\n";
+
+    return false;
+}
