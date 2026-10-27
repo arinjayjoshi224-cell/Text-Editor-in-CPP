@@ -206,35 +206,29 @@ void TextEditor::setText(const string& content)
 
 bool TextEditor::saveDocument(bool saveAs)
 {
-        string filename = currentFilename;
+    string filename = currentFilename;
 
-        if (saveAs || filename.empty())
+    if (saveAs || filename.empty())
+    {
+        if (!chooseSaveFilename(filename))
         {
-            cout << "\nEnter filename or full path: ";
-
-            filename = readFilename();
-
-            if (filename.empty())
-            {
-                cout << "Save cancelled.\n";
-                return false;
-            }
-
-            filename = normalizeFilename(filename);
+            cout << "\nSave cancelled.\n";
+            return false;
         }
-
-        if (saveToFile(filename, getText()))
-        {
-            currentFilename = filename;
-
-            cout << "\nSaved successfully: "
-                << currentFilename << "\n";
-
-            return true;
-        }
-
-        cout << "\nCould not save file: "
-            << filename << "\n";
-
-        return false;
     }
+
+    if (saveToFile(filename, getText()))
+    {
+        currentFilename = filename;
+
+        cout << "\nSaved successfully: "
+             << currentFilename << "\n";
+
+        return true;
+    }
+
+    cout << "\nCould not save file: "
+         << filename << "\n";
+
+    return false;
+}

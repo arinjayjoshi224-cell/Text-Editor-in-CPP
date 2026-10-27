@@ -1,8 +1,10 @@
+
 @echo off
+cd /d "%~dp0\.."
 
 echo Compiling Text Editor...
 
-g++ -std=c++17 main.cpp command.cpp TextEditor.cpp Clipboard.cpp Cursor.cpp SkipList.cpp Document.cpp Display.cpp InputHandler.cpp ConsoleHelpers.cpp FileHandler.cpp -o editor.exe
+g++ -std=c++17 src/main.cpp src/command.cpp src/TextEditor.cpp src/Clipboard.cpp src/Cursor.cpp src/SkipList.cpp src/Document.cpp src/Display.cpp src/InputHandler.cpp src/ConsoleHelpers.cpp src/FileHandler.cpp -o editor.exe -lcomdlg32
 
 if errorlevel 1 (
     echo Compilation failed!
@@ -11,5 +13,5 @@ if errorlevel 1 (
 )
 
 echo Compilation successful!
-
 editor.exe
+pause

@@ -10,4 +10,6 @@ bool loadFromFile(const std::string& filename,std::string& content);
 
 bool chooseOpenFilename(std::string& filename);
 
+bool chooseSaveFilename(std::string& filename);
+
 #endif
