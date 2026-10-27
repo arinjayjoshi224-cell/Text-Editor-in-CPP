@@ -156,7 +156,7 @@ This project provides practical experience with:
 
 ## Contributors
 
-MEHULLI DASTIDAR, MAHEK DATTA, ARINJAY JOSHI, ARUNABHA MANDAL
+MEHULI DASTIDAR, MAHEK DATTA, ARINJAY JOSHI, ARUNABHA MANDAL
 
 ## License
 
