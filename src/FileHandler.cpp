@@ -3,7 +3,10 @@
 
 #include <fstream>
 #include <string>
+#include <windows.h>
+#include <commdlg.h>
 
+#pragma comment(lib, "Comdlg32.lib")
 bool saveToFile(const std::string& filename, const std::string& content)
 {
     std::ofstream file(filename.c_str(),std::ios::binary);
@@ -53,4 +56,35 @@ bool loadFromFile(const std::string& filename,std::string& content)
 
     content = normalized;
     return true;
+}
+
+bool chooseOpenFilename(std::string& filename)
+{
+    char filePath[MAX_PATH] = "";
+
+    OPENFILENAMEA ofn = {};
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = GetConsoleWindow();
+    ofn.lpstrFile = filePath;
+    ofn.nMaxFile = MAX_PATH;
+
+    ofn.lpstrFilter =
+        "Text Files (*.txt)\0*.txt\0"
+        "All Files (*.*)\0*.*\0";
+
+    ofn.nFilterIndex = 1;
+
+    ofn.Flags =
+        OFN_FILEMUSTEXIST |
+        OFN_PATHMUSTEXIST |
+        OFN_HIDEREADONLY;
+
+    if (GetOpenFileNameA(&ofn))
+    {
+        filename = filePath;
+        return true;
+    }
+
+    return false;
 }
