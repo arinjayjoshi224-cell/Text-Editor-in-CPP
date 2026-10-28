@@ -41,7 +41,7 @@ void TextEditor::display()
         clearScreen(hOut);
 
         const WORD normalAttr =
-            FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+            FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 
         const WORD selectedAttr =
             BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
@@ -49,8 +49,6 @@ void TextEditor::display()
         int sl = 0, sc = 0, el = 0, ec = 0;
         bool selecting = getSelectionRange(sl, sc, el, ec);
 
-        // Characters are collected into a buffer and written in one call
-        // per run of identical colour, instead of one cout per character.
         string buf;
         WORD curAttr = normalAttr;
 
@@ -83,8 +81,8 @@ void TextEditor::display()
                     selected = afterStart && beforeEnd;
                 }
 
-                WORD attr = selected ? selectedAttr : normalAttr;
-
+                WORD attr = selected ? selectedAttr : temp->color;
+                
                 if (attr != curAttr)
                 {
                     flushBuffer(hOut, buf);
@@ -121,24 +119,24 @@ void TextEditor::display()
 
 void TextEditor::showList()
 {
-        LineNode* line =
-            firstLine;
+    LineNode* line =
+        firstLine;
 
-        while (line != NULL)
+    while (line != NULL)
+    {
+        CharNode* temp =
+            line->head;
+
+        while (temp != NULL)
         {
-            CharNode* temp =
-                line->head;
+            cout << temp->data;
 
-            while (temp != NULL)
-            {
-                cout << temp->data;
-
-                temp = temp->next;
-            }
-
-            cout << endl;
-
-            line = line->next;
+            temp = temp->next;
         }
+
+        cout << endl;
+
+        line = line->next;
     }
+}
 

@@ -14,4 +14,3 @@ if errorlevel 1 (
 
 echo Compilation successful!
 src\editor.exe
-pause

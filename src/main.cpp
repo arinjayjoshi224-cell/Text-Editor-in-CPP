@@ -10,7 +10,8 @@ int main()
     editor.start();
 
     system("cls");
-
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    
     cout << "Final Text:\n\n";
     editor.showList();
 
