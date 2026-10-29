@@ -3,6 +3,8 @@
 #include "ConsoleHelpers.h"
 #include <iostream>
 #include <cstring>
+#include <string>
+#include <vector>
 #include <cstdlib>
 #include <ctime>
 
@@ -98,8 +100,9 @@ bool TextEditor::openDocument()
     }
 
     string content;
+    vector<unsigned short> colors;
 
-    if (!loadFromFile(filename, content))
+    if (!loadFromFile(filename, content, colors))
     {
         cout << "\nCould not open file: "
              << filename << "\n";
@@ -107,6 +110,26 @@ bool TextEditor::openDocument()
     }
 
     setText(content);
+
+    std::size_t i = 0;
+    LineNode* line = firstLine;
+
+    while (line != NULL)
+    {
+        CharNode* ch = line->head;
+
+        while (ch != NULL)
+        {
+            if (i < colors.size())
+                ch->color = colors[i];
+
+            ++i;
+            ch = ch->next;
+        }
+
+        line = line->next;
+    }
+
     currentFilename = filename;
 
     cout << "\nOpened successfully: "
@@ -203,7 +226,6 @@ void TextEditor::setText(const string& content)
         rebuildSkipList();
     }
 
-
 bool TextEditor::saveDocument(bool saveAs)
 {
     string filename = currentFilename;
@@ -217,7 +239,24 @@ bool TextEditor::saveDocument(bool saveAs)
         }
     }
 
-    if (saveToFile(filename, getText()))
+    vector<unsigned short> colors;
+
+    LineNode* line = firstLine;
+
+    while (line != NULL)
+    {
+        CharNode* ch = line->head;
+
+        while (ch != NULL)
+        {
+            colors.push_back(ch->color);
+            ch = ch->next;
+        }
+
+        line = line->next;
+    }
+
+    if (saveToFile(filename, getText(), colors))
     {
         currentFilename = filename;
 
