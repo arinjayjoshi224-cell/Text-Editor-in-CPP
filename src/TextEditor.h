@@ -57,6 +57,7 @@ public:
     bool selectionActive();
     void beginSelection();
     void clearSelection();
+    void changeSelectionColor(unsigned short color);
     void selectAll();
     string textBetween(int sl, int sc, int el, int ec);
     bool deleteSelection();

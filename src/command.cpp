@@ -2,10 +2,12 @@
 
 void Command::record(const EditorSnapshot& before, const EditorSnapshot& after)
 {
-    if (before.text == after.text)
+    if (before.text == after.text &&
+        before.colors == after.colors)
         return;
 
     undoStack.push(before);
+
     while (!redoStack.empty())
         redoStack.pop();
 }

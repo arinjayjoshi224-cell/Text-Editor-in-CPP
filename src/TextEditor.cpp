@@ -403,6 +403,22 @@ EditorSnapshot TextEditor::captureSnapshot()
     snapshot.text = getText();
     snapshot.line = currentLineNumber;
     snapshot.column = getCurrentColumn();
+
+    LineNode* line = firstLine;
+
+    while (line != NULL)
+    {
+        CharNode* ch = line->head;
+
+        while (ch != NULL)
+        {
+            snapshot.colors.push_back(ch->color);
+            ch = ch->next;
+        }
+
+        line = line->next;
+    }
+
     return snapshot;
 }
 
@@ -437,6 +453,26 @@ void TextEditor::undo()
     if (history.undo(captureSnapshot(), target))
     {
         setText(target.text);
+
+        LineNode* line = firstLine;
+        size_t i = 0;
+
+        while (line != NULL)
+        {
+            CharNode* ch = line->head;
+
+            while (ch != NULL)
+            {
+                if (i < target.colors.size())
+                    ch->color = target.colors[i];
+
+                i++;
+                ch = ch->next;
+            }
+
+            line = line->next;
+        }
+
         moveTo(target.line, target.column);
         clearSelection();
     }
@@ -450,6 +486,26 @@ void TextEditor::redo()
     if (history.redo(captureSnapshot(), target))
     {
         setText(target.text);
+
+        LineNode* line = firstLine;
+        size_t i = 0;
+
+        while (line != NULL)
+        {
+            CharNode* ch = line->head;
+
+            while (ch != NULL)
+            {
+                if (i < target.colors.size())
+                    ch->color = target.colors[i];
+
+                i++;
+                ch = ch->next;
+            }
+
+            line = line->next;
+        }
+
         moveTo(target.line, target.column);
         clearSelection();
     }

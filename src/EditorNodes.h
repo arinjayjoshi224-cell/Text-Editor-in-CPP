@@ -5,12 +5,14 @@ struct CharNode
     char data;
     CharNode* prev;
     CharNode* next;
+    unsigned short color;
 
     CharNode(char ch)
     {
         data = ch;
         prev = NULL;
         next = NULL;
+        color = 7;
     }
 };
 

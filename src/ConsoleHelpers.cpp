@@ -1,4 +1,23 @@
 #include "ConsoleHelpers.h"
+
+void setTextColor(WORD color)
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+void resetTextColor()
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    SetConsoleTextAttribute(
+        hConsole,
+        FOREGROUND_RED |
+        FOREGROUND_GREEN |
+        FOREGROUND_BLUE
+    );
+}
+
 void gotoxy(int x, int y)
 {
     COORD pos;

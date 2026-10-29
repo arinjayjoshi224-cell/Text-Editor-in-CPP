@@ -147,24 +147,24 @@ void TextEditor::display()
 
 void TextEditor::showList()
 {
-        LineNode* line =
-            firstLine;
+    LineNode* line =
+        firstLine;
 
-        while (line != NULL)
+    while (line != NULL)
+    {
+        CharNode* temp =
+            line->head;
+
+        while (temp != NULL)
         {
-            CharNode* temp =
-                line->head;
+            cout << temp->data;
 
-            while (temp != NULL)
-            {
-                cout << temp->data;
-
-                temp = temp->next;
-            }
-
-            cout << endl;
-
-            line = line->next;
+            temp = temp->next;
         }
+
+        cout << endl;
+
+        line = line->next;
     }
+}
 

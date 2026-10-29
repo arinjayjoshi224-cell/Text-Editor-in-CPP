@@ -3,10 +3,12 @@
 
 #include <stack>
 #include <string>
+#include <vector>
 
 struct EditorSnapshot
 {
     std::string text;
+    std::vector<unsigned short> colors;
     int line;
     int column;
 };

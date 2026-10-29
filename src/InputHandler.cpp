@@ -74,6 +74,10 @@ void TextEditor::start()
             (key.dwControlKeyState & SHIFT_PRESSED) != 0;
 
         WORD vk = key.wVirtualKeyCode;
+        if (vk == VK_SHIFT || vk == VK_LSHIFT || vk == VK_RSHIFT || vk == VK_CONTROL || vk == VK_LCONTROL || vk == VK_RCONTROL || vk == VK_MENU || vk == VK_LMENU || vk == VK_RMENU)
+        {
+            continue;
+        }
 
         EditorSnapshot beforeEdit = captureSnapshot();
         bool isTyping = false;
@@ -113,8 +117,7 @@ void TextEditor::start()
 
         // Ctrl+C is also matched by its control character (ETX, 3) in
         // case the terminal reports a different virtual-key code.
-        else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 ||
-                    (ctrl && vk == VK_INSERT))
+        else if ((ctrl && vk == 'C') || key.uChar.AsciiChar == 3 || (ctrl && vk == VK_INSERT))
         {
             copy();
         }
@@ -129,6 +132,34 @@ void TextEditor::start()
         else if (ctrl && vk == 'A')
         {
             selectAll();
+        }
+        else if (ctrl && vk == 'R')
+        {
+            changeSelectionColor(12); // Red
+        }
+        else if (ctrl && vk == 'B')
+        {
+            changeSelectionColor(9);  // Blue
+        }
+        else if (ctrl && vk == 'G')
+        {
+            changeSelectionColor(10); // Green
+        }
+        else if (ctrl && vk == 'M')
+        {
+            changeSelectionColor(13); // Magenta
+        }
+        else if (ctrl && vk == 'E')
+        {
+            changeSelectionColor(14); // Yellow
+        }
+        else if (ctrl && vk == 'W')
+        {
+            changeSelectionColor(15); // Bright white
+        }
+        else if (ctrl && vk == 'Q')
+        {
+            changeSelectionColor(11); // Cyan
         }
         else if (vk == VK_LEFT || vk == VK_RIGHT ||
                     vk == VK_UP || vk == VK_DOWN)
@@ -192,7 +223,9 @@ void TextEditor::start()
             insert(key.uChar.AsciiChar);
             isTyping = true;
         }
-        recordEdit( beforeEdit, isTyping, isTyping && key.uChar.AsciiChar == ' ');
+        bool endGroup = isTyping && (key.uChar.AsciiChar == ' ' || key.uChar.AsciiChar == '\n');
+        recordEdit(beforeEdit, isTyping, endGroup);
+
     }
 
     SetConsoleCtrlHandler(ctrlHandler, FALSE);
