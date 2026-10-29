@@ -34,88 +34,116 @@ void TextEditor::clearScreen(HANDLE hOut)
         SetConsoleCursorPosition(hOut, home);
     }
 
+
 void TextEditor::display()
 {
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        clearScreen(hOut);
+    clearScreen(hOut);
 
-        const WORD normalAttr =
-            FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    const WORD normalAttr =
+        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 
-        const WORD selectedAttr =
-            BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+    const WORD selectedAttr =
+        BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
 
-        int sl = 0, sc = 0, el = 0, ec = 0;
-        bool selecting = getSelectionRange(sl, sc, el, ec);
+    // Light grey line-number colour
+    const WORD lineNumberAttr =
+        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE |
+        FOREGROUND_INTENSITY;
 
-        string buf;
-        WORD curAttr = normalAttr;
+    int sl = 0, sc = 0, el = 0, ec = 0;
+    bool selecting = getSelectionRange(sl, sc, el, ec);
 
-        SetConsoleTextAttribute(hOut, curAttr);
+    string buf;
+    WORD curAttr = normalAttr;
 
-        LineNode* line =
-            firstLine;
+    LineNode* line = firstLine;
+    int row = 0;
 
-        int row = 0;
+    while (line != NULL)
+    {
+        // Display line number in light grey
+        SetConsoleTextAttribute(hOut, lineNumberAttr);
 
-        while (line != NULL)
+        COORD pos;
+        pos.X = 0;
+        pos.Y = row;
+        SetConsoleCursorPosition(hOut, pos);
+
+        string lineNumber = to_string(row + 1) + "  ";
+        DWORD written;
+
+        WriteConsoleA(
+            hOut,
+            lineNumber.c_str(),
+            (DWORD)lineNumber.size(),
+            &written,
+            NULL
+        );
+        
+        // Display actual text in normal/selection colour
+        SetConsoleTextAttribute(hOut, normalAttr);
+        curAttr = normalAttr;
+
+        CharNode* temp = line->head;
+        int col = 0;
+
+        while (temp != NULL)
         {
-            CharNode* temp =
-                line->head;
+            bool selected = false;
 
-            int col = 0;
-
-            while (temp != NULL)
+            if (selecting)
             {
-                bool selected = false;
+                bool afterStart =
+                    row > sl || (row == sl && col >= sc);
 
-                if (selecting)
-                {
-                    bool afterStart =
-                        row > sl || (row == sl && col >= sc);
+                bool beforeEnd =
+                    row < el || (row == el && col < ec);
 
-                    bool beforeEnd =
-                        row < el || (row == el && col < ec);
-
-                    selected = afterStart && beforeEnd;
-                }
-
-                WORD attr = selected ? selectedAttr : temp->color;
-                
-                if (attr != curAttr)
-                {
-                    flushBuffer(hOut, buf);
-                    SetConsoleTextAttribute(hOut, attr);
-                    curAttr = attr;
-                }
-
-                buf += temp->data;
-
-                temp = temp->next;
-                col++;
+                selected = afterStart && beforeEnd;
             }
 
-            if (curAttr != normalAttr)
+            WORD attr = selected ? selectedAttr : normalAttr;
+
+            if (attr != curAttr)
             {
                 flushBuffer(hOut, buf);
-                SetConsoleTextAttribute(hOut, normalAttr);
-                curAttr = normalAttr;
+                SetConsoleTextAttribute(hOut, attr);
+                curAttr = attr;
             }
 
-            buf += '\n';
+            buf += temp->data;
 
-            line = line->next;
-            row++;
+            temp = temp->next;
+            col++;
         }
 
         flushBuffer(hOut, buf);
 
-        int x = getCurrentColumn();
-        int y = currentLineNumber;
+        SetConsoleTextAttribute(hOut, normalAttr);
+        curAttr = normalAttr;
 
-        gotoxy(x, y);
+        buf += '\r';
+        buf += '\n';
+
+        flushBuffer(hOut, buf);
+
+        line = line->next;
+        row++;
     }
+
+    flushBuffer(hOut, buf);
+
+    // Restore normal text colour
+    SetConsoleTextAttribute(hOut, normalAttr);
+
+    // Keep cursor at its original document position
+    int x = getCurrentColumn() + 4;
+    int y = currentLineNumber;
+
+    gotoxy(x, y);
+}
 
 void TextEditor::showList()
 {
